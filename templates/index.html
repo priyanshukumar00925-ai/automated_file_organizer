@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart File Organizer</title>
+    <!-- TailwindCSS: Utility-first CSS framework for rapid UI development. Used via CDN for simplicity. -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col items-center justify-center p-4">
+
+    <div class="w-full max-w-2xl bg-gray-800 rounded-3xl shadow-2xl overflow-hidden border border-gray-700">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 p-8 text-center">
+            <h1 class="text-4xl font-bold mb-2 text-white tracking-tight">File Organizer</h1>
+            <p class="text-blue-100 text-lg">Upload your chaos, get back order.</p>
+        </div>
+
+        <!-- Content -->
+        <div class="p-10 space-y-8">
+            <div class="text-center space-y-2">
+                <p class="text-gray-400">Supported files: Images, Documents, Audio, Video, Archives, Code</p>
+            </div>
+
+            <!-- Upload Area -->
+            <form id="uploadForm" action="/organize" method="POST" enctype="multipart/form-data" class="space-y-6">
+                <div class="flex items-center justify-center w-full">
+                    <label for="dropzone-file" class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-600 border-dashed rounded-2xl cursor-pointer bg-gray-700 hover:bg-gray-650 hover:border-blue-500 transition-all duration-300 group">
+                        <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                            <!-- Icon -->
+                            <svg class="w-12 h-12 mb-4 text-gray-400 group-hover:text-blue-500 transition-colors" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
+                            </svg>
+                            <p class="mb-2 text-lg text-gray-300 group-hover:text-white transition-colors"><span class="font-semibold">Click to upload</span> or drag and drop</p>
+                            <p class="text-xs text-gray-500">Multiple files allowed</p>
+                        </div>
+                        <input id="dropzone-file" type="file" name="files" class="hidden" multiple required onchange="updateFileCount(this)" />
+                    </label>
+                </div>
+                
+                <div id="file-count" class="text-center text-sm text-blue-400 font-medium h-5"></div>
+
+                <div class="flex justify-center">
+                    <button type="submit" class="px-8 py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold rounded-xl shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 focus:ring-4 focus:ring-blue-500/30">
+                        Organize & Download Zip
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Footer -->
+        <div class="bg-gray-800/50 p-4 text-center border-t border-gray-700">
+            <p class="text-xs text-gray-500">Secure & Private. Files are processed locally and deleted immediately.</p>
+        </div>
+    </div>
+
+    <script>
+        function updateFileCount(input) {
+            const fileCountElement = document.getElementById('file-count');
+            if (input.files && input.files.length > 0) {
+                fileCountElement.textContent = `${input.files.length} file(s) selected`;
+            } else {
+                fileCountElement.textContent = '';
+            }
+        }
+        
+        // Drag and drop visual feedback
+        const dropzone = document.querySelector('label[for="dropzone-file"]');
+        
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropzone.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropzone.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropzone.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight(e) {
+            dropzone.classList.add('border-blue-500');
+            dropzone.classList.add('bg-gray-600');
+        }
+
+        function unhighlight(e) {
+            dropzone.classList.remove('border-blue-500');
+            dropzone.classList.remove('bg-gray-600');
+        }
+        
+        dropzone.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            const input = document.getElementById('dropzone-file');
+            
+            // This is a bit of a hack to set the files of the input
+            // Most modern browsers support this
+            input.files = files;
+            updateFileCount(input);
+        }
+    </script>
+</body>
+</html>
